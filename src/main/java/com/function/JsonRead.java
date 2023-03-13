@@ -10,11 +10,6 @@ import java.util.Optional;
  */
 public class JsonRead {
 
-    /**
-     * This function listens at endpoint "/api/JsonRead". Two ways to invoke it using "curl" command in bash:
-     * 1. curl -d "HTTP Body" {your host}/api/JsonRead
-     * 2. curl {your host}/api/JsonRead?name=HTTP%20Query
-     */
     @FunctionName("JsonRead")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
@@ -26,13 +21,13 @@ public class JsonRead {
 
         if (requestBody == null || requestBody.isEmpty()) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-                    .body("Please pass a valid JSON request body")
+                    .body("pass a valid JSON ")
                     .build();
         } else {
-            // Return the JSON request body as the response
+            
             return request.createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
-                    .body(requestBody)
+                    .body("requestBody : coucou")
                     .build();
         }
     }
