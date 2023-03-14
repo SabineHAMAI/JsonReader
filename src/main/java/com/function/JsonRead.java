@@ -23,22 +23,9 @@ public class JsonRead {
         context.getLogger().info("Java HTTP trigger processed a request.");
 
         
-        // List<> listJson = new ArrayList<String>();
+       
         
         String requestBody =  request.getBody().orElse(null);
-
-        //Array t = requestBody.a
-
-        // List<> list = requestBody.toArray();
-
-        // Create String[] from setOfString
-      
- 
-        // return the formed String[]
-
-        // String arrayJson = "[[\"test\",\"test2\"],[\"test3\",\"test3\"]]";
-
-        // JSON.parse(arrayJson);
     
        // String str = "[{\"name\":\"name1\",\"url\":\"url1\"},{\"name\":\"name2\",\"url\":\"url2\"}]";
 
@@ -46,7 +33,8 @@ public class JsonRead {
         JSONObject json = (JSONObject) obj;
         System.out.println("all:"+json);
 
-       
+       JSONObject data = (JSONObject) json.get("params");
+       System.out.println(data);
 
         if (requestBody == null || requestBody.isEmpty()) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
