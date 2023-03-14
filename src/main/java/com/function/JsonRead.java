@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import org.json.simple.parser.*;
@@ -34,10 +35,14 @@ public class JsonRead {
 
        JSONObject jsonData = (JSONObject) json.get("params");
        System.out.println(jsonData);
+       JSONArray array = (JSONArray) jsonData.get("entry");
 
-      Set keys = jsonData.keySet();
+       Iterator<Object> it = array.iterator();
 
-      System.out.println(keys);
+
+    //   Set keys = array.get(0).keys();
+
+      System.out.println(it);
 
       //JSONObject  menu = jsonData.getJSONObject("key");
 
