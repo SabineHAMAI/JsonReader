@@ -3,13 +3,12 @@ package com.function;
 import com.microsoft.azure.functions.annotation.*;
 import com.microsoft.azure.functions.*;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
 import org.json.simple.parser.*;
 /**
  * Azure Functions with HTTP Trigger.
@@ -33,8 +32,19 @@ public class JsonRead {
         JSONObject json = (JSONObject) obj;
         System.out.println("all:"+json);
 
-       JSONObject data = (JSONObject) json.get("params");
-       System.out.println(data);
+       JSONObject jsonData = (JSONObject) json.get("params");
+       System.out.println(jsonData);
+
+      Set keys = jsonData.keySet();
+
+      System.out.println(keys);
+
+      //JSONObject  menu = jsonData.getJSONObject("key");
+
+
+
+
+
 
         if (requestBody == null || requestBody.isEmpty()) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
