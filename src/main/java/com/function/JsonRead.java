@@ -14,6 +14,16 @@ import org.json.simple.JSONObject;
 
 
 import org.json.simple.parser.*;
+
+
+import java.net.http.HttpRequest;
+
+import okhttp3.MediaType;
+//import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 /**
  * Azure Functions with HTTP Trigger.
  */
@@ -38,36 +48,63 @@ public class JsonRead {
        JSONArray array = (JSONArray) jsonData.get("entry");
 
 
-            JSONObject jsonObj = (JSONObject) array.get(0);
-            Set<String> keys = jsonObj.keySet();
+        JSONObject jsonObj = (JSONObject) array.get(0);
+        Set<String> keys = jsonObj.keySet();
 
-            for (String title : keys) {
-                
-                if (!(title.equals("Short description keyID")  
-                    || title.equals("Business component") 
-                    || title.equals("Key")) ){
+        for (String title : keys) {
+            
+            if (!(title.equals("Short description keyID")  
+                || title.equals("Business component") 
+                || title.equals("Key")) ){
 
-                        String langue = title;
-                        System.out.println(langue);
+                String langue = title;
+                System.out.println(langue);
 
-                        JSONObject content = new JSONObject();
+                JSONObject content = new JSONObject();
 
-                        for (Object elementArray : array) {
-    
-                            JSONObject elementJson = (JSONObject) elementArray;
-                            String key = (String) elementJson.get("Key");
-                            String value = (String) elementJson.get(langue);
+                for (Object elementArray : array) {
 
-                            content.put(key, value);
+                    JSONObject elementJson = (JSONObject) elementArray;
+                    String key = (String) elementJson.get("Key");
+                    String value = (String) elementJson.get(langue);
 
-                        }
-
-                        System.out.println(content.toString());
+                    content.put(key, value);
 
                 }
-                    
+
+                System.out.println(content.toString());
+
+                OkHttpClient client = new OkHttpClient();
+
+                MediaType mediaType = MediaType.parse("application/json");
+           
+                RequestBody body = RequestBody.create(content.toJSONString(), mediaType);
+                Request requestCreateOneEntry = new Request.Builder()
+                    .url("https://eu-api.contentstack.com/v3/content_types/categories/entries?locale=fr")
+                    .post(body)
+                    .addHeader("api_key", "blt0e7212638c9ff7cd")
+                    .addHeader("authorization", "csa27268198a98c8d71ea5445e")
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
+                //System.out.println("response a analyser"+response.toString());
+                if (responseCreateOneEntry.code()==200) {
+                    String responseBody = responseCreateOneEntry.body().string();
+                    System.out.println("La requete de creation d'une entry a bien marche et retourne :\n"+responseBody);
+                } else {
+                    System.out.println("PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code());
+                }
+            } catch (Exception e) {
+                System.out.println("pb avec l'execution de la requete de creation d'une entry");
             }
 
+
+                
+
+            }
+
+                
+        }
 
         if (requestBody == null || requestBody.isEmpty()) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
@@ -83,6 +120,11 @@ public class JsonRead {
 
 
         }
+
+  
+
+
+ 
 
 
 
