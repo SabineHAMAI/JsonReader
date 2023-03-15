@@ -60,7 +60,7 @@ public class JsonRead {
                 || title.equals("Business component") 
                 || title.equals("Key")) ){
 
-                String langue = title.toLowerCase();
+                String langue = title;
                 System.out.println(langue);
 
                 JSONObject content = new JSONObject();
@@ -88,7 +88,7 @@ public class JsonRead {
            
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
-                    .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue)
+                    .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue.toLowerCase())
                     .post(body)
                     .addHeader("api_key", "blt0e7212638c9ff7cd")
                     .addHeader("authorization", "csa27268198a98c8d71ea5445e")
@@ -96,7 +96,7 @@ public class JsonRead {
                     .build();
             try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
                 //System.out.println("response a analyser"+response.toString());
-                if (responseCreateOneEntry.code()==200) {
+                if (responseCreateOneEntry.code()==201) {
                     String responseBody = responseCreateOneEntry.body().string();
                     System.out.println("La requete de creation d'une entry a bien marche et retourne :\n"+responseBody);
                 } else {
