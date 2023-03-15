@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.Set;
 
 
-//import org.json.simple.JSONArray;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import org.json.JSONArray;
+
 
 import org.json.simple.parser.*;
 /**
@@ -53,20 +53,22 @@ public class JsonRead {
 
                         JSONObject content = new JSONObject();
 
-                        // for (Object elementArray : array) {
+                        for (Object elementArray : array) {
 
-                        //     String key = (String) ((JSONArray) elementArray).toJSONString(1);
+                            JSONObject elementJson = (JSONObject) elementArray;
+                            System.out.println(elementJson.get("Key"));
 
-                        // }
 
-                        for (int i = 0; i < array.length(); i++)
-                        {
-                        String key = array.getJSONObject(i).getString("Key");
-                        String value=array.getJSONObject(i).getString(langue);
-
-                        System.out.println("key:" +key +" "+ "value:" +value);
-                     
                         }
+
+                        // for (int i = 0; i < array.length(); i++)
+                        // {
+                        // String key = array.getJSONObject(i).getString("Key");
+                        // String value=array.getJSONObject(i).getString(langue);
+
+                        // System.out.println("key:" +key +" "+ "value:" +value);
+                     
+                        // }
 
                 }
                     
