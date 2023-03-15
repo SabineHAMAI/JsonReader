@@ -22,13 +22,10 @@ public class JsonRead {
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws ParseException {
         context.getLogger().info("Java HTTP trigger processed a request.");
-
-        
-       
         
         String requestBody =  request.getBody().orElse(null);
-    
-       // String str = "[{\"name\":\"name1\",\"url\":\"url1\"},{\"name\":\"name2\",\"url\":\"url2\"}]";
+
+        //String requestBody= "{\"entry\":[{\"Business component\":\"h_dashboard_v2\",\"BG\":\" UXP\",\"Short description keyID\":\"\",\"FR\":\" UXP\",\"Key\":\"dashboard.fbstatus.xp.labelxp\"},{\"Business component\":\"h_dashboard_v2\",\"BG\":\"???????? ??????T\",\"Short description keyID\":\"\",\"FR\":\"???????? ??????? \u2013\",\"Key\":\"dashboard.lasttransaction.label\"}]}";
 
         Object obj = new JSONParser().parse(requestBody);
         JSONObject json = (JSONObject) obj;
@@ -38,29 +35,21 @@ public class JsonRead {
        System.out.println(jsonData);
        JSONArray array = (JSONArray) jsonData.get("entry");
 
-       for (Object obj2 : array) {
-        JSONObject jsonObj = (JSONObject) obj2;
+       for (Object jsonArray : array) {
+        JSONObject jsonObj = (JSONObject) jsonArray;
         Set<String> keys = jsonObj.keySet();
         for (String key : keys) {
-            System.out.println(key);
+            System.out.println("je suis la ");
+            if (key != "Short description keyID" && key !="Business component" && key !="Key" ){
+                System.out.println(key);
+            }
+                
         }
+
+        
 
 
     }
-
-
-    
-
-
-    //   Set keys = array.get(0).keys();
-
-    
-
-      //JSONObject  menu = jsonData.getJSONObject("key");
-
-
-
-
 
 
         if (requestBody == null || requestBody.isEmpty()) {
@@ -78,33 +67,8 @@ public class JsonRead {
 
         }
 
-        // 
 
-        
-
-
-
-       
-
-
-
-
-
-    
     }
 
-    /*public static void main(String[] args) {
 
-        String requestBody = "{\"test1\":{\"Business component\": \"h_dashboard_v2\",\"Key\": \"dashboard.fbstatus.xp.labelxp\",\"BG\": \"{1} UXP\",\"DA\": \"{1} UXP\"},\"test2\":{\"Business component\": \"h_dashboard_v2\",\"Key\": \"dashboard.lasttransaction.label\",\"BG\": \"Последна дейност {1} {2}\",\"DA\": \"Sidste aktivitet {1} {2}\" }}";
-        //String requestBody = "{\"test\":\"test\"}";
-        
-        try {
-            Object obj = new JSONParser().parse(requestBody);
-            JSONObject json = (JSONObject) obj;
-            System.out.println("all: "+json);
-        } catch (Exception e) {
-            
-            System.out.println(e);
-        }
-    }*/
 }
