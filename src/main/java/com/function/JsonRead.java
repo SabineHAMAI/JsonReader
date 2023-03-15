@@ -32,7 +32,7 @@ public class JsonRead {
     @FunctionName("JsonRead")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) throws ParseException {
+            final ExecutionContext context) throws ParseException, InterruptedException {
         context.getLogger().info("Java HTTP trigger processed a request.");
         
         String requestBody =  request.getBody().orElse(null);
@@ -108,8 +108,10 @@ public class JsonRead {
 
             }
 
-                
+            Thread.sleep(1000);        
         }
+
+
 
         if (requestBody == null || requestBody.isEmpty()) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
