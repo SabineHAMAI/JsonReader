@@ -8,8 +8,10 @@ import java.util.Optional;
 import java.util.Set;
 
 
-import org.json.simple.JSONArray;
+//import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import org.json.JSONArray;
 
 import org.json.simple.parser.*;
 /**
@@ -35,18 +37,37 @@ public class JsonRead {
        System.out.println(jsonData);
        JSONArray array = (JSONArray) jsonData.get("entry");
 
-        //for (Object jsonArray : array) {
+        //
 
             JSONObject jsonObj = (JSONObject) array.get(0);
             Set<String> keys = jsonObj.keySet();
 
-            for (String key : keys) {
+            for (String title : keys) {
                 
-                if (!(key.equals("Short description keyID")  
-                    || key.equals("Business component") 
-                    || key.equals("Key")) ){
+                if (!(title.equals("Short description keyID")  
+                    || title.equals("Business component") 
+                    || title.equals("Key")) ){
 
-                    System.out.println(key);
+                        String langue = title;
+                        System.out.println(langue);
+
+                        JSONObject content = new JSONObject();
+
+                        // for (Object elementArray : array) {
+
+                        //     String key = (String) ((JSONArray) elementArray).toJSONString(1);
+
+                        // }
+
+                        for (int i = 0; i < array.length(); i++)
+                        {
+                        String key = array.getJSONObject(i).getString("Key");
+                        String value=array.getJSONObject(i).getString(langue);
+
+                        System.out.println("key:" +key +" "+ "value:" +value);
+                     
+                        }
+
                 }
                     
             }
@@ -68,6 +89,8 @@ public class JsonRead {
 
 
         }
+
+
 
 
     }
