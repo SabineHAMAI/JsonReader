@@ -49,6 +49,9 @@ public class JsonRead {
 
 
         JSONObject jsonObj = (JSONObject) array.get(0);
+        
+        String contentTypeName = (String) jsonObj.get("Business component");   
+        
         Set<String> keys = jsonObj.keySet();
 
         for (String title : keys) {
@@ -57,7 +60,7 @@ public class JsonRead {
                 || title.equals("Business component") 
                 || title.equals("Key")) ){
 
-                String langue = title;
+                String langue = title.toLowerCase();
                 System.out.println(langue);
 
                 JSONObject content = new JSONObject();
@@ -79,15 +82,13 @@ public class JsonRead {
 
                 contentAll.put("entry", content);
 
-               
-
                 OkHttpClient client = new OkHttpClient();
 
                 MediaType mediaType = MediaType.parse("application/json");
            
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
-                    .url("https://eu-api.contentstack.com/v3/content_types/categories/entries?locale=fr")
+                    .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue)
                     .post(body)
                     .addHeader("api_key", "blt0e7212638c9ff7cd")
                     .addHeader("authorization", "csa27268198a98c8d71ea5445e")
@@ -103,10 +104,7 @@ public class JsonRead {
                 }
             } catch (Exception e) {
                 System.out.println("pb avec l'execution de la requete de creation d'une entry");
-            }
-
-
-                
+            }        
 
             }
 
@@ -127,14 +125,6 @@ public class JsonRead {
 
 
         }
-
-  
-
-
- 
-
-
-
 
     }
 
