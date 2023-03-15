@@ -61,6 +61,7 @@ public class JsonRead {
                 System.out.println(langue);
 
                 JSONObject content = new JSONObject();
+                content.put("title","import_"+langue);
 
                 for (Object elementArray : array) {
 
@@ -74,11 +75,17 @@ public class JsonRead {
 
                 System.out.println(content.toString());
 
+                JSONObject contentAll = new JSONObject();
+
+                contentAll.put("entry", content);
+
+               
+
                 OkHttpClient client = new OkHttpClient();
 
                 MediaType mediaType = MediaType.parse("application/json");
            
-                RequestBody body = RequestBody.create(content.toJSONString(), mediaType);
+                RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
                     .url("https://eu-api.contentstack.com/v3/content_types/categories/entries?locale=fr")
                     .post(body)
