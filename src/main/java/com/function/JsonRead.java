@@ -35,21 +35,20 @@ public class JsonRead {
        System.out.println(jsonData);
        JSONArray array = (JSONArray) jsonData.get("entry");
 
-       for (Object jsonArray : array) {
-        JSONObject jsonObj = (JSONObject) jsonArray;
-        Set<String> keys = jsonObj.keySet();
-        for (String key : keys) {
-            System.out.println("je suis la ");
-            if (key != "Short description keyID" && key !="Business component" && key !="Key" ){
-                System.out.println(key);
+        //for (Object jsonArray : array) {
+
+            JSONObject jsonObj = (JSONObject) array.get(0);
+            Set<String> keys = jsonObj.keySet();
+
+            for (String key : keys) {
+                System.out.println("je suis la ");
+                if (key != "Short description keyID" && key !="Business component" && key !="Key" ){
+                    System.out.println(key);
+                }
+                    
             }
-                
-        }
 
-        
-
-
-    }
+       // }
 
 
         if (requestBody == null || requestBody.isEmpty()) {
