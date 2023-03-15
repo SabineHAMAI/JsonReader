@@ -41,8 +41,11 @@ public class JsonRead {
             Set<String> keys = jsonObj.keySet();
 
             for (String key : keys) {
-                System.out.println("je suis la ");
-                if (key != "Short description keyID" && key !="Business component" && key !="Key" ){
+                
+                if (!(key.equals("Short description keyID")  
+                    || key.equals("Business component") 
+                    || key.equals("Key")) ){
+
                     System.out.println(key);
                 }
                     
