@@ -1,43 +1,37 @@
 package com.function;
 
-import com.microsoft.azure.functions.annotation.*;
-import com.microsoft.azure.functions.*;
-
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-
-
-import org.json.simple.parser.*;
-
-
-import java.net.http.HttpRequest;
+import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.HttpMethod;
+import com.microsoft.azure.functions.HttpRequestMessage;
+import com.microsoft.azure.functions.HttpResponseMessage;
+import com.microsoft.azure.functions.HttpStatus;
+import com.microsoft.azure.functions.annotation.AuthorizationLevel;
+import com.microsoft.azure.functions.annotation.FunctionName;
+import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import okhttp3.MediaType;
-//import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-/**
- * Azure Functions with HTTP Trigger.
- */
+
 public class JsonRead {
 
     @FunctionName("JsonRead")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) throws ParseException, InterruptedException {
+            final ExecutionContext context) throws ParseException, InterruptedException, IllegalAccessException {
         context.getLogger().info("Java HTTP trigger processed a request.");
         
         String requestBody =  request.getBody().orElse(null);
-
-        //String requestBody= "{\"entry\":[{\"Business component\":\"h_dashboard_v2\",\"BG\":\" UXP\",\"Short description keyID\":\"\",\"FR\":\" UXP\",\"Key\":\"dashboard.fbstatus.xp.labelxp\"},{\"Business component\":\"h_dashboard_v2\",\"BG\":\"???????? ??????T\",\"Short description keyID\":\"\",\"FR\":\"???????? ??????? \u2013\",\"Key\":\"dashboard.lasttransaction.label\"}]}";
 
         Object obj = new JSONParser().parse(requestBody);
         JSONObject json = (JSONObject) obj;
@@ -85,7 +79,7 @@ public class JsonRead {
                 OkHttpClient client = new OkHttpClient();
 
                 MediaType mediaType = MediaType.parse("application/json");
-           
+
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
                     .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue.toLowerCase())
@@ -102,16 +96,16 @@ public class JsonRead {
                 } else {
                     System.out.println("PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code());
                 }
+
+
             } catch (Exception e) {
                 System.out.println("pb avec l'execution de la requete de creation d'une entry");
             }        
 
             }
 
-            Thread.sleep(1000);        
+                   
         }
-
-
 
         if (requestBody == null || requestBody.isEmpty()) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
