@@ -1,6 +1,10 @@
 package com.function;
 
 import com.microsoft.azure.functions.annotation.*;
+import com.contentstack.sdk.Config;
+import com.contentstack.sdk.Contentstack;
+import com.contentstack.sdk.Stack;
+import com.contentstack.sdk.Config.ContentstackRegion;
 import com.microsoft.azure.functions.*;
 
 import java.util.Iterator;
@@ -32,10 +36,13 @@ public class JsonRead {
     @FunctionName("JsonRead")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) throws ParseException, InterruptedException {
+            final ExecutionContext context) throws ParseException, InterruptedException, IllegalAccessException {
         context.getLogger().info("Java HTTP trigger processed a request.");
         
         String requestBody =  request.getBody().orElse(null);
+
+
+
 
         //String requestBody= "{\"entry\":[{\"Business component\":\"h_dashboard_v2\",\"BG\":\" UXP\",\"Short description keyID\":\"\",\"FR\":\" UXP\",\"Key\":\"dashboard.fbstatus.xp.labelxp\"},{\"Business component\":\"h_dashboard_v2\",\"BG\":\"???????? ??????T\",\"Short description keyID\":\"\",\"FR\":\"???????? ??????? \u2013\",\"Key\":\"dashboard.lasttransaction.label\"}]}";
 
@@ -85,6 +92,14 @@ public class JsonRead {
                 OkHttpClient client = new OkHttpClient();
 
                 MediaType mediaType = MediaType.parse("application/json");
+
+                Config config = new Config();
+                
+                config.setRegion(ContentstackRegion.EU);
+
+                Stack stack = Contentstack.stack("blt0e7212638c9ff7cd", "csa27268198a98c8d71ea5445e", "dev", config);
+
+
            
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
@@ -102,13 +117,15 @@ public class JsonRead {
                 } else {
                     System.out.println("PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code());
                 }
+
+
             } catch (Exception e) {
                 System.out.println("pb avec l'execution de la requete de creation d'une entry");
             }        
 
             }
 
-            Thread.sleep(1000);        
+                   
         }
 
 

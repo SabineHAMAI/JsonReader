@@ -51,6 +51,12 @@
             <version>LATEST</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.contentstack.sdk</groupId>
+            <artifactId>java</artifactId>
+            <version>LATEST</version>
+        </dependency>
+
 
 
     </dependencies>
