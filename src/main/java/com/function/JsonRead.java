@@ -96,18 +96,18 @@ public class JsonRead {
                 //System.out.println("response a analyser"+response.toString());
                 if (responseCreateOneEntry.code()==201) {
                     String responseBody = responseCreateOneEntry.body().string();
-                    output= "La requete de creation d'une entry a bien marche et retourne :\n"+responseBody;
+                    output= output.concat("/n La requete de creation d'une entry a bien marche et retourne :\n"+responseBody) ;
                     System.out.println(output);
                 } else {
 
-                    output= "PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code();
+                    output= output.concat("/n PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code());
                     System.out.println(output);
                 }
 
 
             } catch (Exception e) {
 
-                output="pb avec l'execution de la requete de creation d'une entry";
+                output=output.concat("pb avec l'execution de la requete de creation d'une entry");
                 System.out.println(output);
             }        
 
