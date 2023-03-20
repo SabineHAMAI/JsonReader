@@ -48,6 +48,8 @@ public class JsonRead {
         
         Set<String> keys = jsonObj.keySet();
 
+        String output;
+
         for (String title : keys) {
             
             if (!(title.equals("Short description keyID")  
@@ -80,7 +82,7 @@ public class JsonRead {
 
                 MediaType mediaType = MediaType.parse("application/json");
 
-                String output;
+                
 
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
