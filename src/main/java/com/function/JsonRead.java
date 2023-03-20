@@ -48,7 +48,7 @@ public class JsonRead {
         
         Set<String> keys = jsonObj.keySet();
 
-        String output;
+        String output=" ";
 
         for (String title : keys) {
             
