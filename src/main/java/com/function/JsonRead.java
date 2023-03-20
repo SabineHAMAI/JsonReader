@@ -80,6 +80,8 @@ public class JsonRead {
 
                 MediaType mediaType = MediaType.parse("application/json");
 
+                String output;
+
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
                     .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue.toLowerCase())
@@ -92,14 +94,19 @@ public class JsonRead {
                 //System.out.println("response a analyser"+response.toString());
                 if (responseCreateOneEntry.code()==201) {
                     String responseBody = responseCreateOneEntry.body().string();
-                    System.out.println("La requete de creation d'une entry a bien marche et retourne :\n"+responseBody);
+                    output= "La requete de creation d'une entry a bien marche et retourne :\n"+responseBody;
+                    System.out.println(output);
                 } else {
-                    System.out.println("PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code());
+
+                    output= "PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code();
+                    System.out.println(output);
                 }
 
 
             } catch (Exception e) {
-                System.out.println("pb avec l'execution de la requete de creation d'une entry");
+
+                output="pb avec l'execution de la requete de creation d'une entry";
+                System.out.println(output);
             }        
 
             }
@@ -116,7 +123,7 @@ public class JsonRead {
                         
             return request.createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
-                    .body("requestBody : coucou")
+                    .body("requestBody : ")
                     .build();
 
 
