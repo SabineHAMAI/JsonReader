@@ -96,11 +96,11 @@ public class JsonRead {
                 //System.out.println("response a analyser"+response.toString());
                 if (responseCreateOneEntry.code()==201) {
                     String responseBody = responseCreateOneEntry.body().string();
-                    output= output.concat( "La requete de creation d'une entry a bien marche et retourne : <br>"+responseBody) ;
+                    output= output.concat( "<br/> La requete de creation d'une entry a bien marche et retourne : "+responseBody) ;
                     System.out.println(output);
                 } else {
 
-                    output= output.concat("<br/> PB requete de creation d'une entry, le Code retour="+responseCreateOneEntry.code());
+                    output= output.concat("<br/> PB requete de creation d'une entry, le Code retour: "+responseCreateOneEntry.code());
                     System.out.println(output);
                 }
 
