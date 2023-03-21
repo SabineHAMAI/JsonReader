@@ -229,9 +229,8 @@ public class JsonRead {
             .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries/"+uid+"?locale="+langue)
             .put(body)
             .addHeader("api_key", "blt0e7212638c9ff7cd")
-            .addHeader("access_token", "csa27268198a98c8d71ea5445e")
+            .addHeader("authorization", "csa27268198a98c8d71ea5445e")
             .addHeader("Content-Type", "application/json")
-            .addHeader("authtoken", "blt57a01bcc35b524ed")
             .build();
 
         String output=" ";
@@ -247,14 +246,14 @@ public class JsonRead {
 
             } else {
 
-                output= output.concat("<br/> PB Search: "+responseUpdateOneEntry.code());
+                output= output.concat("<br/> PB Update: "+responseUpdateOneEntry.code());
                 System.out.println(output);
             }
 
 
         } catch (Exception e) {
 
-            output=output.concat("<br/> PB Search: "+e);
+            output=output.concat("<br/> PB Update: "+e);
             System.out.println(output);
         }  
 
