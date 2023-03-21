@@ -120,9 +120,10 @@ public class JsonRead {
                 }     
 
                 }else{
+
+
+                    System.out.println("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries/"+uid+"?locale="+langue);
                     
-
-
                     String res= UpdateEntry(contentTypeName, uid, langue, contentAll);
                     output=output.concat(res);
 
