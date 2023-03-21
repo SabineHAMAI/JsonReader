@@ -104,7 +104,19 @@ public class JsonRead {
                     //System.out.println("response a analyser"+response.toString());
                     if (responseCreateOneEntry.code()==201) {
                         String responseBody = responseCreateOneEntry.body().string();
-                        output= output.concat( "<br/> La requete de creation d'une entry a bien marche et retourne : "+responseBody) ;
+
+                        Object objectReponsObject = new JSONParser().parse(responseBody);
+                        JSONObject jsonReponse = (JSONObject) objectReponsObject;
+                    
+                        JSONObject entryData = (JSONObject) jsonReponse.get("entry");
+
+               
+
+                
+        
+                        String createdUid = (String) entryData.get("uid");   
+
+                        output= output.concat( "<br/> Succefully Created "+createdUid) ;
                         System.out.println(output);
                     } else {
     
@@ -238,11 +250,11 @@ public class JsonRead {
 
         try (Response responseUpdateOneEntry = client.newCall(requestUpdateOneEntry).execute()) {
             
-            if (responseUpdateOneEntry.code()==201) {
+            if (responseUpdateOneEntry.code()==200) {
  
                 String responseBody = responseUpdateOneEntry.body().string();
 
-                output=output.concat(responseBody);
+                output=output.concat("<br/> Succesfuly Updated "+uid);
 
 
             } else {
