@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.google.gson.JsonObject;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.HttpRequestMessage;
@@ -80,40 +81,54 @@ public class JsonRead {
                 
                  
 
-                String res = Search("import_"+langue, contentTypeName);
-                output=output.concat(res);
-                
+                String uid = Search("import_"+langue, contentTypeName);
+                //output=output.concat(uid);
 
-                OkHttpClient client = new OkHttpClient();
+                if(uid.equals("")){
 
-                MediaType mediaType = MediaType.parse("application/json");
+                    //Create
 
-                RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
-                Request requestCreateOneEntry = new Request.Builder()
-                    .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue.toLowerCase())
-                    .post(body)
-                    .addHeader("api_key", "blt0e7212638c9ff7cd")
-                    .addHeader("authorization", "csa27268198a98c8d71ea5445e")
-                    .addHeader("Content-Type", "application/json")
-                    .build();
-            try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
-                //System.out.println("response a analyser"+response.toString());
-                if (responseCreateOneEntry.code()==201) {
-                    String responseBody = responseCreateOneEntry.body().string();
-                    output= output.concat( "<br/> La requete de creation d'une entry a bien marche et retourne : "+responseBody) ;
+                    OkHttpClient client = new OkHttpClient();
+
+                    MediaType mediaType = MediaType.parse("application/json");
+    
+                    RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
+                    Request requestCreateOneEntry = new Request.Builder()
+                        .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?locale="+langue.toLowerCase())
+                        .post(body)
+                        .addHeader("api_key", "blt0e7212638c9ff7cd")
+                        .addHeader("authorization", "csa27268198a98c8d71ea5445e")
+                        .addHeader("Content-Type", "application/json")
+                        .build();
+                try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
+                    //System.out.println("response a analyser"+response.toString());
+                    if (responseCreateOneEntry.code()==201) {
+                        String responseBody = responseCreateOneEntry.body().string();
+                        output= output.concat( "<br/> La requete de creation d'une entry a bien marche et retourne : "+responseBody) ;
+                        System.out.println(output);
+                    } else {
+    
+                        output= output.concat("<br/> PB requete de creation d'une entry, le Code retour: "+responseCreateOneEntry.code());
+                        System.out.println(output);
+                    }
+    
+    
+                } catch (Exception e) {
+    
+                    output=output.concat("<br/> PB avec l'execution de la requete de creation d'une entry");
                     System.out.println(output);
-                } else {
+                }     
 
-                    output= output.concat("<br/> PB requete de creation d'une entry, le Code retour: "+responseCreateOneEntry.code());
-                    System.out.println(output);
+                }else{
+                    
+
+
+                    String res= UpdateEntry(contentTypeName, uid, langue, contentAll);
+                    output=output.concat(res);
+
+
                 }
-
-
-            } catch (Exception e) {
-
-                output=output.concat("<br/> PB avec l'execution de la requete de creation d'une entry");
-                System.out.println(output);
-            }        
+     
 
             }
 
@@ -156,20 +171,14 @@ public class JsonRead {
         String output=" ";
 
         try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
-
-
-
-            
             
             if (responseCreateOneEntry.code()==200) {
-
-                
+ 
                 String responseBody = responseCreateOneEntry.body().string();
 
 
                 Object obj = new JSONParser().parse(responseBody);
                 JSONObject json = (JSONObject) obj;
-
                
                 JSONArray array = (JSONArray) json.get("entries");
 
@@ -186,12 +195,9 @@ public class JsonRead {
 
                     output= uid;
 
-
-
                 }
-                
-                output= output.concat( "<br/> Search: "+responseBody) ;
-                System.out.println(output);
+
+
             } else {
 
                 output= output.concat("<br/> PB Search: "+responseCreateOneEntry.code());
@@ -205,11 +211,61 @@ public class JsonRead {
             System.out.println(output);
         }  
 
-        return output;
-
-
-    
-        
+        return output;  
     }
+
+
+    public String UpdateEntry(String contentTypeName, String uid, String langue, JSONObject contentAll){
+
+
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json");
+
+        
+        RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
+            
+        Request requestUpdateOneEntry = new Request.Builder()
+            .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries/"+uid+"?locale="+langue)
+            .put(body)
+            .addHeader("api_key", "blt0e7212638c9ff7cd")
+            .addHeader("access_token", "csa27268198a98c8d71ea5445e")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("authtoken", "blt57a01bcc35b524ed")
+            .build();
+
+        String output=" ";
+
+        try (Response responseUpdateOneEntry = client.newCall(requestUpdateOneEntry).execute()) {
+            
+            if (responseUpdateOneEntry.code()==201) {
+ 
+                String responseBody = responseUpdateOneEntry.body().string();
+
+                output=output.concat(responseBody);
+
+
+            } else {
+
+                output= output.concat("<br/> PB Search: "+responseUpdateOneEntry.code());
+                System.out.println(output);
+            }
+
+
+        } catch (Exception e) {
+
+            output=output.concat("<br/> PB Search: "+e);
+            System.out.println(output);
+        }  
+
+        return output;  
+
+
+
+    }
+
+
+
+
 
 }
