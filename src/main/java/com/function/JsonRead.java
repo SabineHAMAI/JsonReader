@@ -165,6 +165,31 @@ public class JsonRead {
 
                 
                 String responseBody = responseCreateOneEntry.body().string();
+
+
+                Object obj = new JSONParser().parse(responseBody);
+                JSONObject json = (JSONObject) obj;
+
+               
+                JSONArray array = (JSONArray) json.get("entries");
+
+                if(array.size()==0){
+
+                    output= "";
+
+                    
+                }else{
+
+                    JSONObject jsonObj = (JSONObject) array.get(0);
+        
+                    String uid = (String) jsonObj.get("uid");   
+
+                    output= uid;
+
+
+
+                }
+                
                 output= output.concat( "<br/> Search: "+responseBody) ;
                 System.out.println(output);
             } else {
