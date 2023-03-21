@@ -77,12 +77,16 @@ public class JsonRead {
                 JSONObject contentAll = new JSONObject();
 
                 contentAll.put("entry", content);
+                
+                 
+
+                String res = Search("import_"+langue, contentTypeName);
+                output=output.concat(res);
+                
 
                 OkHttpClient client = new OkHttpClient();
 
                 MediaType mediaType = MediaType.parse("application/json");
-
-                
 
                 RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
                 Request requestCreateOneEntry = new Request.Builder()
@@ -133,5 +137,54 @@ public class JsonRead {
 
     }
 
+    public String Search(String name, String contentTypeName) {
+
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json");
+
+            
+        Request requestCreateOneEntry = new Request.Builder()
+            .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName+"/entries?query={\"title\":\""+name+"\"}")
+            .get()
+            .addHeader("api_key", "blt0e7212638c9ff7cd")
+            .addHeader("access_token", "csa27268198a98c8d71ea5445e")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("authtoken", "blt57a01bcc35b524ed")
+            .build();
+
+        String output=" ";
+
+        try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
+
+
+
+            
+            
+            if (responseCreateOneEntry.code()==200) {
+
+                
+                String responseBody = responseCreateOneEntry.body().string();
+                output= output.concat( "<br/> Search: "+responseBody) ;
+                System.out.println(output);
+            } else {
+
+                output= output.concat("<br/> PB Search: "+responseCreateOneEntry.code());
+                System.out.println(output);
+            }
+
+
+        } catch (Exception e) {
+
+            output=output.concat("<br/> PB Search: "+e);
+            System.out.println(output);
+        }  
+
+        return output;
+
+
+    
+        
+    }
 
 }
