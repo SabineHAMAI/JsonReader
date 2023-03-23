@@ -68,6 +68,7 @@ public class JsonRead {
 
         //Chercher si le content Type existe déjà ou pas
         String resSearchContenType = SearchContentType(contentTypeName);
+        System.out.println(resSearchContenType);
 
         String stringBodyJson=genrateContentTypeJSONFromListOfFields(contentTypeName,listFieldsContentType); 
         //Si reponse == 200 c'est qu'il a trouvé un content Type
@@ -292,7 +293,7 @@ public class JsonRead {
         //Build de la requête
         OkHttpClient client = new OkHttpClient();
         Request requestSearchContentType= new Request.Builder()
-                .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName+ "\"}")
+                .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName)
                 .get()
                 .addHeader("api_key", "blt02f7b45378b008ee")
                 .addHeader("access_token", "cs5b69faf35efdebd91d08bcf4")
