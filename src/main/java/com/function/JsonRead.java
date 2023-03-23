@@ -50,10 +50,11 @@ public class JsonRead {
         JSONObject jsonObj = (JSONObject) array.get(0);//list //
         String contentTypeName = (String) jsonObj.get("Business component");
 
-//for 65
-
         Set<String> keys = jsonObj.keySet();
-        //enlever key short..Bussiness comp....
+
+        keys.remove("Business component");
+        keys.remove("Short description keyID");
+        keys.remove("Key");
         String output = " ";
 
         for (String title : keys) {
