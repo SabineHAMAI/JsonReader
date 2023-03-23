@@ -42,6 +42,8 @@ public class JsonRead {
         Object obj = new JSONParser().parse(requestBody);
         JSONObject json = (JSONObject) obj;
 
+        System.out.println(json.toJSONString());
+        
         //Descent jusqu'à entry [{"DE":"test labelxp","Business component":"test_import","Short description keyID":"","FR":"test labelxp","Key":"labelxp"},{"DE":"test label","Business component":"test_import","Short description keyID":"","FR":"test label","Key":"label"}]
         JSONObject jsonData = (JSONObject) json.get("params");
         JSONArray array = (JSONArray) jsonData.get("entry");
