@@ -68,7 +68,7 @@ public class JsonRead {
 
         //Chercher si le content Type existe déjà ou pas
         String resSearchContenType = SearchContentType(contentTypeName);
-        System.out.println(resSearchContenType);
+        System.out.println("resultat search: "+resSearchContenType);
 
         String stringBodyJson=genrateContentTypeJSONFromListOfFields(contentTypeName,listFieldsContentType); 
         //Si reponse == 200 c'est qu'il a trouvé un content Type
