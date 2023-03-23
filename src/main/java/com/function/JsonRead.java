@@ -53,9 +53,9 @@ public class JsonRead {
         //Récupération des clefs 
         //{"DE","Business component","Short description keyID","FR","Key"}
         Set<String> keys = jsonObj.keySet();
-        // keys.remove("Business component");
-        // keys.remove("Short description keyID");
-        // keys.remove("Key");
+        keys.remove("Business component");
+        keys.remove("Short description keyID");
+        keys.remove("Key");
         //{"DE","FR"}
 
         //Récuparation de la liste des Fields
