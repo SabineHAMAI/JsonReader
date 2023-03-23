@@ -48,11 +48,6 @@ public class JsonRead {
         Set<String> keys = jsonObj.keySet();
         String output = " ";
 
-
-
-
-
-
         for (String title : keys) {
             if (!(title.equals("Short description keyID")
                     || title.equals("Business component")
@@ -77,7 +72,8 @@ public class JsonRead {
                 String uid = Search("import_" + langue, contentTypeName);
                 
                 String stringBodyJson=genrateContentTypeJSONFromListOfFields(contentTypeName,listFieldsContentType); 
-                CreateContentType(stringBodyJson);
+                String resCreateContentType = CreateContentType(stringBodyJson);
+                output = output.concat(resCreateContentType);
                 
                 if (uid.equals("")) {
                     String res = CreateEntry(contentTypeName, uid, langue.toLowerCase(), contentAll);
@@ -129,11 +125,11 @@ public class JsonRead {
                 }
             } else {
 
-                output = output.concat("<br/> PB Search: " + responseSearchEntry.code());
+                output = output.concat("<br/> PB Search Entry: " + responseSearchEntry.code());
                 System.out.println(output);
             }
         } catch (Exception e) {
-            output = output.concat("<br/> PB Search: " + e);
+            output = output.concat("<br/> PB Search Entry : " + e);
             System.out.println(output);
         }
         return output;
@@ -226,10 +222,11 @@ public class JsonRead {
         return stringBodyJson;
      }
 
-    public static void CreateContentType(String stringContentTypeJson) throws IOException {
+    public static String CreateContentType(String stringContentTypeJson) throws IOException {
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(stringContentTypeJson,mediaType);
+        String output = "";
         Request createContentType = new Request.Builder()
            .url("https://eu-api.contentstack.com/v3/content_types/")
            //.method("POST", body)  Seems to be deprecated
@@ -241,13 +238,54 @@ public class JsonRead {
         try (Response responseCreateOneContentType = client.newCall(createContentType).execute()) {
            //System.out.println("response a analyser"+responseCreateOneContentType.toString());
            if (responseCreateOneContentType.code()<300) {
-              System.out.println("La requete de creation d'une Content Type a bien marche et retourne :\n"+responseCreateOneContentType.body().string());
+              output=output.concat("<br/> La requete de creation d'une Content Type a bien marche et retourne :\n"+responseCreateOneContentType.body().string());
+
            } else {
-              System.out.println("PB requete de creation d'une Content Type, le Code retour="+responseCreateOneContentType.code()+"\nPeut-etre le content type existe deja!");
+              output=output.concat("<br/> PB requete de creation d'une Content Type, le Code retour="+responseCreateOneContentType.code()+"\nPeut-etre le content type existe deja!");
            }
         } catch (Exception e) {
-           System.out.println("pb avec l'execution de la requete de creation d'un content type");
+           output=output.concat("<br/> pb avec l'execution de la requete de creation d'un content type");
         }
-     }
+
+        return output;
+
+    }
+
+
+
+     public String SearchContentType(String contentTypeName) {
+        OkHttpClient client = new OkHttpClient();
+        MediaType mediaType = MediaType.parse("application/json");
+        Request requestSearchContentType= new Request.Builder()
+                .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName+ "\"}")
+                .get()
+                .addHeader("api_key", "blt02f7b45378b008ee")
+                .addHeader("access_token", "cs5b69faf35efdebd91d08bcf4")
+                .build();
+        String output = " ";
+        try (Response responseSearchContentType = client.newCall(requestSearchContentType).execute()) {
+            if (responseSearchContentType.code() == 200) {
+                String responseBody = responseSearchContentType.body().string();
+                Object obj = new JSONParser().parse(responseBody);
+                JSONObject json = (JSONObject) obj;
+                JSONArray array = (JSONArray) json.get("content_type");
+                if (array.size() == 0) {
+                    output = "";
+                } else {
+                    JSONObject jsonObj = (JSONObject) array.get(0);
+                    String uid = (String) jsonObj.get("uid");
+                    output = uid;
+                }
+            } else {
+
+                output = output.concat("<br/> PB Search Content Type: " + responseSearchContentType.code());
+                System.out.println(output);
+            }
+        } catch (Exception e) {
+            output = output.concat("<br/> PB Search: " + e);
+            System.out.println(output);
+        }
+        return output;
+    }
 
 }
