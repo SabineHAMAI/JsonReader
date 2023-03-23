@@ -34,56 +34,72 @@ public class JsonRead {
             HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws ParseException, InterruptedException, IllegalAccessException, IOException {
         context.getLogger().info("Java HTTP trigger processed a request.");
+        String output = "";
 
-
+        //recupération du body envoyé et transformation en JSON
+        //{"headers":{"Content-Type":"application\/json"},"params":{"entry":[{"DE":"test labelxp","Business component":"test_import","Short description keyID":"","FR":"test labelxp","Key":"labelxp"},{"DE":"test label","Business component":"test_import","Short description keyID":"","FR":"test label","Key":"label"}]}}
         String requestBody = request.getBody().orElse(null);
         Object obj = new JSONParser().parse(requestBody);
         JSONObject json = (JSONObject) obj;
 
-
-        System.out.println("all:" + json);
+        //Descent jusqu'à entry [{"DE":"test labelxp","Business component":"test_import","Short description keyID":"","FR":"test labelxp","Key":"labelxp"},{"DE":"test label","Business component":"test_import","Short description keyID":"","FR":"test label","Key":"label"}]
         JSONObject jsonData = (JSONObject) json.get("params");
-        System.out.println(jsonData);
-
-        
         JSONArray array = (JSONArray) jsonData.get("entry");
-        JSONObject jsonObj = (JSONObject) array.get(0);//list //
+
+        //Recupération du content type name
+        JSONObject jsonObj = (JSONObject) array.get(0);
         String contentTypeName = (String) jsonObj.get("Business component");
 
+        //Récupération des clefs 
+        //{"DE","Business component","Short description keyID","FR","Key"}
         Set<String> keys = jsonObj.keySet();
+        // keys.remove("Business component");
+        // keys.remove("Short description keyID");
+        // keys.remove("Key");
+        //{"DE","FR"}
 
-        keys.remove("Business component");
-        keys.remove("Short description keyID");
-        keys.remove("Key");
-        String output = " ";
+        //Récuparation de la liste des Fields
+        List<String> listFieldsContentType = new ArrayList<String>();
+        for (Object elementArray : array) {
+            JSONObject elementJson = (JSONObject) elementArray;
+            String key = (String) elementJson.get("Key");
+            listFieldsContentType.add(key);
+        }
 
-        for (String title : keys) {
-            if (!(title.equals("Short description keyID")
-                    || title.equals("Business component")
-                    || title.equals("Key"))) {
-                String langue = title;
-                System.out.println(langue);
+        //Chercher si le content Type existe déjà ou pas
+        String resSearchContenType = SearchContentType(contentTypeName);
+
+        String stringBodyJson=genrateContentTypeJSONFromListOfFields(contentTypeName,listFieldsContentType); 
+        //Si reponse == 200 c'est qu'il a trouvé un content Type
+        if (resSearchContenType.equals("200")){
+            String resUpdateContentType = UpdateContentType(contentTypeName,stringBodyJson);
+            output = output.concat(resUpdateContentType);            
+        }else{
+            //Creation du Content Type
+            String resCreateContentType = CreateContentType(stringBodyJson);
+            output = output.concat(resCreateContentType);            
+        }
+
+        for (String langue : keys) { //{"DE","FR"}
+           if (!(langue.equals("Short description keyID") || langue.equals("Business component") || langue.equals("Key"))) {
+
                 JSONObject content = new JSONObject();
                 content.put("title", "import_" + langue);
-
-                List<String> listFieldsContentType = new ArrayList<String>();
 
                 for (Object elementArray : array) {
                     JSONObject elementJson = (JSONObject) elementArray;
                     String key = (String) elementJson.get("Key");
                     String value = (String) elementJson.get(langue);
                     content.put(key, value);
-                    listFieldsContentType.add(key);
                 }
-                System.out.println(content.toString());
+
                 JSONObject contentAll = new JSONObject();
                 contentAll.put("entry", content);
+
+                //Regarde si l'entry existe
                 String uid = Search("import_" + langue, contentTypeName);
-                
-                String stringBodyJson=genrateContentTypeJSONFromListOfFields(contentTypeName,listFieldsContentType); 
-                String resCreateContentType = CreateContentType(stringBodyJson);
-                output = output.concat(resCreateContentType);
-                
+
+                //si l'entry existe on update, sinon on créer
                 if (uid.equals("")) {
                     String res = CreateEntry(contentTypeName, uid, langue.toLowerCase(), contentAll);
                     output = output.concat(res);
@@ -98,7 +114,6 @@ public class JsonRead {
                     .body("pass a valid JSON ")
                     .build();
         } else {
-
             return request.createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
                     .body("requestBody : " + output)
@@ -107,9 +122,12 @@ public class JsonRead {
 
     }
 
-    public String Search(String name, String contentTypeName) {
+    public static String Search(String name, String contentTypeName) {
+        String output = " ";
+
         OkHttpClient client = new OkHttpClient();
-        MediaType mediaType = MediaType.parse("application/json");
+
+        //Build de la requête
         Request requestSearchEntry = new Request.Builder()
                 .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName+ "/entries?query={\"title\":\"" + name +"\"}")
                 .get()
@@ -118,13 +136,15 @@ public class JsonRead {
                 .addHeader("Content-Type", "application/json")
                 .addHeader("authtoken", "blt57a01bcc35b524ed")
                 .build();
-        String output = " ";
+        
+        //Execution de la requête
         try (Response responseSearchEntry = client.newCall(requestSearchEntry).execute()) {
             if (responseSearchEntry.code() == 200) {
                 String responseBody = responseSearchEntry.body().string();
                 Object obj = new JSONParser().parse(responseBody);
                 JSONObject json = (JSONObject) obj;
                 JSONArray array = (JSONArray) json.get("entries");
+                //Si l'array est vide c'est qu'il n'a rien trouvé donc l'entry n'existe pas, sinon on return l'uid
                 if (array.size() == 0) {
                     output = "";
                 } else {
@@ -133,7 +153,6 @@ public class JsonRead {
                     output = uid;
                 }
             } else {
-
                 output = output.concat("<br/> PB Search Entry: " + responseSearchEntry.code());
                 System.out.println(output);
             }
@@ -144,10 +163,14 @@ public class JsonRead {
         return output;
     }
 
-    public String UpdateEntry(String contentTypeName, String uid, String langue, JSONObject contentAll) {
+    public static String UpdateEntry(String contentTypeName, String uid, String langue, JSONObject contentAll) {
+        String output = " ";
+
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
+
+        //Build de la requête
         Request requestUpdateOneEntry = new Request.Builder()
                 .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName + "/entries/" + uid+ "?locale=" + langue)
                 .put(body)
@@ -155,28 +178,30 @@ public class JsonRead {
                 .addHeader("authorization", "csa27268198a98c8d71ea5445e")
                 .addHeader("Content-Type", "application/json")
                 .build();
-        String output = " ";
+        
 
+        //Execution de la requête
         try (Response responseUpdateOneEntry = client.newCall(requestUpdateOneEntry).execute()) {
             if (responseUpdateOneEntry.code() == 200) {
                 String responseBody = responseUpdateOneEntry.body().string();
                 output = output.concat("<br/> Succesfuly Updated " + uid);
             } else {
                 output = output.concat("<br/> PB Update: " + responseUpdateOneEntry.code());
-                System.out.println(output);
             }
         } catch (Exception e) {
             output = output.concat("<br/> PB Update: " + e);
-            System.out.println(output);
         }
         return output;
     }
 
-    public String CreateEntry(String contentTypeName, String uid, String langue, JSONObject contentAll) {
+    public static String CreateEntry(String contentTypeName, String uid, String langue, JSONObject contentAll) {
+        String output = "";
+
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
-        String output = "";
         RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
+
+        //Build de la requête
         Request requestCreateOneEntry = new Request.Builder()
                 .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName + "/entries?locale="+ langue)
                 .post(body)
@@ -184,8 +209,9 @@ public class JsonRead {
                 .addHeader("authorization", "csa27268198a98c8d71ea5445e")
                 .addHeader("Content-Type", "application/json")
                 .build();
+
+        //Execution de la requête                
         try (Response responseCreateOneEntry = client.newCall(requestCreateOneEntry).execute()) {
-            // System.out.println("response a analyser"+response.toString());
             if (responseCreateOneEntry.code() == 201) {
                 String responseBody = responseCreateOneEntry.body().string();
                 Object objectReponsObject = new JSONParser().parse(responseBody);
@@ -193,15 +219,12 @@ public class JsonRead {
                 JSONObject entryData = (JSONObject) jsonReponse.get("entry");
                 String createdUid = (String) entryData.get("uid");
                 output = output.concat("<br/> Succefully Created " + createdUid);
-                System.out.println(output);
             } else {
                 output = output.concat("<br/> PB requete de creation d'une entry, le Code retour: " + responseCreateOneEntry.code());
-                System.out.println(output);
             }
 
         } catch (Exception e) {
             output = output.concat("<br/> PB avec l'execution de la requete de creation d'une entry");
-            System.out.println(output);
         }
         return output;
     }
@@ -232,10 +255,13 @@ public class JsonRead {
      }
 
     public static String CreateContentType(String stringContentTypeJson) throws IOException {
+        String output = "";
+
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(stringContentTypeJson,mediaType);
-        String output = "";
+
+        //Build de la requête
         Request createContentType = new Request.Builder()
            .url("https://eu-api.contentstack.com/v3/content_types/")
            //.method("POST", body)  Seems to be deprecated
@@ -244,6 +270,8 @@ public class JsonRead {
            .addHeader("authorization", "csa27268198a98c8d71ea5445e")
            .addHeader("Content-Type", "application/json")
            .build();
+
+        //Execution de la requête
         try (Response responseCreateOneContentType = client.newCall(createContentType).execute()) {
            //System.out.println("response a analyser"+responseCreateOneContentType.toString());
            if (responseCreateOneContentType.code()<300) {
@@ -255,46 +283,62 @@ public class JsonRead {
         } catch (Exception e) {
            output=output.concat("<br/> pb avec l'execution de la requete de creation d'un content type");
         }
-
         return output;
-
     }
 
+    public static String SearchContentType(String contentTypeName) {
+        String output = " ";
 
-
-     public String SearchContentType(String contentTypeName) {
+        //Build de la requête
         OkHttpClient client = new OkHttpClient();
-        MediaType mediaType = MediaType.parse("application/json");
         Request requestSearchContentType= new Request.Builder()
                 .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName+ "\"}")
                 .get()
                 .addHeader("api_key", "blt02f7b45378b008ee")
                 .addHeader("access_token", "cs5b69faf35efdebd91d08bcf4")
+                .addHeader("authtoken", "blt57a01bcc35b524ed")
                 .build();
-        String output = " ";
+        
+        //Execution de la requête
         try (Response responseSearchContentType = client.newCall(requestSearchContentType).execute()) {
             if (responseSearchContentType.code() == 200) {
-                String responseBody = responseSearchContentType.body().string();
-                Object obj = new JSONParser().parse(responseBody);
-                JSONObject json = (JSONObject) obj;
-                JSONArray array = (JSONArray) json.get("content_type");
-                if (array.size() == 0) {
-                    output = "";
-                } else {
-                    JSONObject jsonObj = (JSONObject) array.get(0);
-                    String uid = (String) jsonObj.get("uid");
-                    output = uid;
-                }
+                return Integer.toString(responseSearchContentType.code());
             } else {
-
-                output = output.concat("<br/> PB Search Content Type: " + responseSearchContentType.code());
-                System.out.println(output);
+                output = output.concat("<br/> PB Search Content Type il existe peut etre: " + responseSearchContentType.code());
             }
         } catch (Exception e) {
             output = output.concat("<br/> PB Search: " + e);
-            System.out.println(output);
         }
         return output;
     }
 
+    public static String UpdateContentType(String contentTypeName, String stringContentTypeJson) {
+        String output = " ";
+
+        OkHttpClient client = new OkHttpClient();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(stringContentTypeJson, mediaType);
+
+        //Build de la requête
+        Request requestUpdateOneEntry = new Request.Builder()
+                .url("https://eu-api.contentstack.com/v3/content_types/" + contentTypeName)
+                .put(body)
+                .addHeader("api_key", "blt0e7212638c9ff7cd")
+                .addHeader("authorization", "csa27268198a98c8d71ea5445e")
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        //Execution de la requête
+        try (Response responseUpdateOneEntry = client.newCall(requestUpdateOneEntry).execute()) {
+            if (responseUpdateOneEntry.code() == 200) {
+                String responseBody = responseUpdateOneEntry.body().string();
+                output = output.concat("<br/> Content type Succesfuly Updated " + contentTypeName);
+            } else {
+                output = output.concat("<br/> PB Update Content type: " + responseUpdateOneEntry.code());
+            }
+        } catch (Exception e) {
+            output = output.concat("<br/> PB Update Content type: " + e);
+        }
+        return output;
+    }
 }
