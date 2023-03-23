@@ -295,8 +295,8 @@ public class JsonRead {
         Request requestSearchContentType= new Request.Builder()
                 .url("https://eu-api.contentstack.com/v3/content_types/"+contentTypeName)
                 .get()
-                .addHeader("api_key", "blt02f7b45378b008ee")
-                .addHeader("access_token", "cs5b69faf35efdebd91d08bcf4")
+                .addHeader("api_key", "blt0e7212638c9ff7cd")
+                .addHeader("access_token", "csa27268198a98c8d71ea5445e")
                 .addHeader("authtoken", "blt57a01bcc35b524ed")
                 .build();
         
