@@ -302,7 +302,7 @@ public class JsonRead {
         //Execution de la requête
         try (Response responseSearchContentType = client.newCall(requestSearchContentType).execute()) {
             if (responseSearchContentType.code() == 200) {
-                return responseSearchContentType.code();
+                return  Integer.toString(responseSearchContentType.code());
             } else {
                 output = output.concat("<br/> PB Search Content Type il existe peut etre: " + responseSearchContentType.code());
             }
@@ -317,7 +317,7 @@ public class JsonRead {
 
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(contentAll.toJSONString(), mediaType);
+        RequestBody body = RequestBody.create(stringContentTypeJson, mediaType);
 
         //Build de la requête
         Request requestUpdateOneEntry = new Request.Builder()
