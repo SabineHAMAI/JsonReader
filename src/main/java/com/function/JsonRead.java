@@ -2,6 +2,8 @@ package com.function;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -52,11 +54,16 @@ public class JsonRead {
 
         //Récupération des clefs 
         //{"DE","Business component","Short description keyID","FR","Key"}
-        Set<String> keys = jsonObj.keySet();
-        keys.remove("Business component");
-        keys.remove("Short description keyID");
-        keys.remove("Key");
+        //Set<String> keys = jsonObj.keySet();
+        // keys.remove("Business component");
+        // keys.remove("Short description keyID");
+        // keys.remove("Key");
         //{"DE","FR"}
+
+        Set<String> keysToRemove = new HashSet<>(Arrays.asList("Business component", "Short description keyID", "Key"));
+        Set<String> keys = jsonObj.keySet();
+        keys.removeAll(keysToRemove);
+
 
         //Récuparation de la liste des Fields
         List<String> listFieldsContentType = new ArrayList<String>();
